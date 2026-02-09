@@ -1,6 +1,6 @@
 <p align="center">
     <h1 align="center">Neill Hewitt</h1>
-    <h3 align="center">Creative Technologist | Visualization & Simulation Artist | Self-Taught Innovator</h3>
+    <h3 align="center">3D Visualization & Simulation Artist | Creative Systems Technologist for the Space Era</h3>
 </p>
 
 <p align="center">
