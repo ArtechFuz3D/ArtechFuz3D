@@ -16,7 +16,11 @@ I’m Neill aka ArtechFuz3D. I went to the future, fell in love, came back to bu
 ~ NASA 3D Design Winner ’24 | Lunar Habitation & Robotics Outfitting
 “wild ideas, multi-functional, multi-application” 
 
-~ Sole creator of the only lifelike Heart of Gold Spaceship interior on Earth.
+~ Sole creator of the only lifelike Heart of Gold Spaceship (Hitchhikers Guide) interior on Earth.
+
+<p align="center">
+    <img src="Alogo3.png" alt="ArtechFuz3D" width="300">
+</p>
 
 ---
 <!--
@@ -37,7 +41,7 @@ I’m Neill aka ArtechFuz3D. I went to the future, fell in love, came back to bu
 </p>
 -->
 <p align="center">
-    <img src="Alogo3.png" alt="ArtechFuz3D" width="300">
+    <img src="HOGInteriorTextEnh01.jpg" alt="ArtechFuz3D" width="300">
 </p>
 
 ---
