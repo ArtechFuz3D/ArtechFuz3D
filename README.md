@@ -19,8 +19,9 @@ I’m Neill aka ArtechFuz3D. I went to the future, fell in love, came back to bu
 ~ Sole creator of the only lifelike Heart of Gold Spaceship (Hitchhikers Guide) interior on Earth.
 
 <p align="center">
-    <img src="Alogo3.png" alt="ArtechFuz3D" width="300">
+    <img src="Post2-1.png" alt="ArtechFuz3D" width="300">
 </p>
+
 
 ---
 <!--
@@ -40,11 +41,12 @@ I’m Neill aka ArtechFuz3D. I went to the future, fell in love, came back to bu
     </pre>
 </p>
 -->
-<p align="center">
-    <img src="Post2-1.png" alt="ArtechFuz3D" width="300">
-</p>
+
 
 ---
+<p align="center">
+    <img src="Alogo3.png" alt="ArtechFuz3D" width="300">
+</p>
 
 <p align="center">
     <a href="https://portfolio.artechfuz3d.xyz">🌐 Portfolio</a> | <a href="https://artechfuz3d.itch.io">🎮 itch.io</a>
