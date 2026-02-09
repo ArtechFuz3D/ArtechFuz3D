@@ -41,7 +41,7 @@ I’m Neill aka ArtechFuz3D. I went to the future, fell in love, came back to bu
 </p>
 -->
 <p align="center">
-    <img src="HOGInteriorTextEnh01.jpg" alt="ArtechFuz3D" width="300">
+    <img src="Post2-1.png" alt="ArtechFuz3D" width="300">
 </p>
 
 ---
