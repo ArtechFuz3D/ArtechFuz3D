@@ -16,7 +16,7 @@
 
 <div align="center">
 
-<a href="[https://YOUR-VERCEL-URL.vercel.app](https://artechfuz3d.github.io/3d-launch-tracker/)">
+<a href="https://artechfuz3d.github.io/3d-launch-tracker/">
   <img src="https://img.shields.io/badge/ENTER-HOLOGRAPHIC%20SYSTEM-00F7FF?style=for-the-badge"/>
 </a>
 
