@@ -1,12 +1,4 @@
-Alright—here’s a **next-level, sci-fi aerospace GitHub profile README** you can drop straight into your `ArtechFuz3D` profile repo (repo name must match your username for it to display). ([Techolyze][1])
 
-This is not “nice”… this is **main-character developer energy**.
-
----
-
-# 🚀 FULL README (copy this)
-
-````markdown
 <!-- ================= HEADER ================= -->
 <div align="center">
 
