@@ -1,0 +1,628 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --c:#00FFFF;--c2:#00CCCC;--c3:#007777;--c4:#003333;
+  --o:#FF4500;--o2:#CC3700;--o3:#441200;
+  --g:#00FF41;--g2:#00BB30;
+  --bg:#020B12;--bg2:#040D18;--bg3:#06111E;
+  --bo:#0A2E3C;--bo2:#0D3D4F;
+  --tx:#8DDFFF;--tx2:#5AA8BB;--tx3:#2A6070;
+}
+body{background:var(--bg);font-family:'Share Tech Mono',monospace;color:var(--tx);overflow-x:hidden;min-height:100vh;position:relative}
+
+/* ─── PARTICLE CANVAS ─── */
+#particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.6}
+
+/* ─── GRID BG ─── */
+#grid-bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+
+/* ─── SCANLINES ─── */
+body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,20,30,0.4) 3px,rgba(0,20,30,0.4) 4px);pointer-events:none;z-index:998}
+
+.wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+
+/* ─── HEADER ─── */
+.hud-header{position:relative;border:1px solid var(--bo2);background:linear-gradient(180deg,rgba(4,13,24,0.95),rgba(2,11,18,0.98));padding:0;overflow:hidden}
+.hud-header::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,var(--c) 30%,var(--c) 70%,transparent 100%);animation:scanTop 6s ease-in-out infinite}
+@keyframes scanTop{0%,100%{opacity:0.3}50%{opacity:1}}
+.header-inner{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:20px 24px 16px}
+.header-left{display:flex;flex-direction:column;gap:4px}
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.sys-label{font-size:9px;color:var(--tx3);letter-spacing:3px}
+.sys-val{font-size:11px;color:var(--tx2);letter-spacing:1px}
+.sys-val.ok{color:var(--g)}
+.sys-val.warn{color:var(--o)}
+.callsign-center{text-align:center}
+.callsign{font-family:'Orbitron',monospace;font-size:44px;font-weight:900;color:var(--c);letter-spacing:6px;line-height:1;position:relative;display:inline-block;text-shadow:0 0 40px rgba(0,255,255,0.3)}
+.callsign-ghost{position:absolute;left:2px;top:2px;color:var(--o);opacity:0.15;pointer-events:none}
+.desig{font-size:10px;color:var(--tx2);letter-spacing:4px;margin-top:6px}
+.header-bottom{border-top:1px solid var(--bo);padding:10px 24px;display:flex;align-items:center;gap:0;background:rgba(2,11,18,0.6)}
+.hb-item{display:flex;align-items:center;gap:8px;padding:0 16px;border-right:1px solid var(--bo);font-size:9px;letter-spacing:2px}
+.hb-item:first-child{padding-left:0}
+.hb-item:last-child{border-right:none}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot.pulse{animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.2;transform:scale(0.7)}}
+.bk{display:absolute}
+/* corner brackets */
+.cb{position:absolute;width:14px;height:14px;border-color:var(--c);border-style:solid}
+.cb.tl{top:7px;left:7px;border-width:2px 0 0 2px}
+.cb.tr{top:7px;right:7px;border-width:2px 2px 0 0}
+.cb.bl{bottom:7px;left:7px;border-width:0 0 2px 2px}
+.cb.br{bottom:7px;right:7px;border-width:0 2px 2px 0}
+
+/* ─── SECTION HEADER ─── */
+.sec-hd{font-size:8px;color:var(--tx3);letter-spacing:4px;margin-bottom:0;padding:4px 0 4px 2px;border-bottom:1px solid var(--bo);display:flex;align-items:center;gap:8px}
+.sec-hd::before{content:'◈';color:var(--c);font-size:10px}
+
+/* ─── STAT PANELS ─── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat-card{border:1px solid var(--bo2);background:rgba(4,13,24,0.9);padding:14px;position:relative;cursor:pointer;transition:all .25s;overflow:hidden}
+.stat-card::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--accent,var(--c));opacity:0.5;transition:opacity .25s}
+.stat-card:hover{border-color:var(--c);transform:translateY(-2px)}
+.stat-card:hover::before{opacity:1}
+.stat-card:hover .osc-line{filter:brightness(1.4)}
+.sc-id{position:absolute;top:8px;right:10px;font-size:8px;color:var(--tx3);letter-spacing:2px}
+.sc-label{font-size:8px;color:var(--tx3);letter-spacing:2px;margin-bottom:8px}
+.sc-val{font-family:'Orbitron',monospace;font-size:32px;font-weight:700;color:var(--accent,var(--c));line-height:1}
+.sc-sub{font-size:8px;color:var(--tx2);margin-top:4px}
+.osc-wrap{margin-top:10px;height:28px;overflow:hidden;position:relative}
+canvas.osc-line{width:100%;height:28px}
+
+/* ─── TERMINAL ─── */
+.terminal{border:1px solid var(--bo2);background:rgba(2,8,14,0.95);overflow:hidden}
+.t-bar{height:24px;background:rgba(4,13,24,0.98);border-bottom:1px solid var(--bo);display:flex;align-items:center;gap:7px;padding:0 12px}
+.t-dot{width:7px;height:7px;border-radius:50%}
+.t-title{font-size:8px;color:var(--tx3);letter-spacing:3px;flex:1;text-align:center}
+.t-body{padding:14px 18px;font-size:11px;line-height:1.85;min-height:120px}
+.t-pr{color:var(--tx3)}
+.t-cm{color:var(--c)}
+.t-ok{color:var(--g)}
+.t-wn{color:var(--o)}
+.t-v{color:var(--tx2)}
+.cursor{display:inline-block;width:7px;height:12px;background:var(--c);animation:blink 1s step-end infinite;vertical-align:middle;margin-left:2px}
+@keyframes blink{50%{opacity:0}}
+
+/* ─── PROJECT CARDS ─── */
+.cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pcard{border:1px solid var(--bo2);background:rgba(4,13,24,0.92);overflow:hidden;cursor:pointer;transition:all .3s;position:relative}
+.pcard::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent,var(--c)),transparent);opacity:0;transition:opacity .3s}
+.pcard:hover{border-color:var(--accent,var(--c));box-shadow:0 0 24px rgba(0,255,255,0.04)}
+.pcard:hover::after{opacity:1}
+.pcard-head{padding:12px 14px 9px;border-bottom:1px solid var(--bo);display:flex;align-items:flex-start;justify-content:space-between}
+.pcard-info{}
+.pm{font-size:8px;color:var(--tx3);letter-spacing:2px}
+.pt{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;color:var(--accent,var(--c));margin-top:3px;letter-spacing:1px}
+.pst{font-size:8px;letter-spacing:1px;padding:2px 8px;border:1px solid;margin-top:2px;display:inline-block}
+.pcard-body{padding:10px 14px}
+.pd{font-size:10px;color:var(--tx2);line-height:1.65;margin-bottom:8px}
+.tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font-size:8px;color:var(--tx3);border:1px solid var(--bo);padding:1px 6px;letter-spacing:1px;transition:all .2s}
+.pcard:hover .tag{border-color:var(--bo2);color:var(--tx2)}
+.pcard-foot{padding:7px 14px;border-top:1px solid var(--bo);display:flex;justify-content:space-between;align-items:center;font-size:8px;color:var(--tx3)}
+.lang-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px}
+.go{color:var(--accent,var(--c));opacity:0;transition:opacity .2s;letter-spacing:1px}
+.pcard:hover .go{opacity:1}
+
+/* ─── SKILL + RADAR ROW ─── */
+.skills-row{display:grid;grid-template-columns:1fr 200px;gap:8px}
+.skill-panel{border:1px solid var(--bo2);background:rgba(4,13,24,0.9);padding:14px}
+.skill-item{margin-bottom:10px}
+.sk-row{display:flex;justify-content:space-between;margin-bottom:3px}
+.sk-n{font-size:9px;color:var(--tx2);letter-spacing:1px}
+.sk-p{font-size:9px;color:var(--c);font-family:'Orbitron',monospace}
+.sk-t{height:3px;background:var(--bo);position:relative;overflow:hidden}
+.sk-f{height:100%;position:relative;transition:width 1s ease-out}
+.sk-f::after{content:'';position:absolute;top:0;right:0;width:3px;height:100%;background:white;opacity:0.9}
+.radar-panel{border:1px solid var(--bo2);background:rgba(4,13,24,0.9);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;gap:8px}
+
+/* ─── ACTIVITY ─── */
+.activity{border:1px solid var(--bo2);background:rgba(4,13,24,0.9);padding:14px}
+.a-wrap{display:flex;flex-direction:column;gap:3px}
+.a-row{display:flex;gap:2px}
+.a-cell{width:9px;height:9px;border-radius:1px;cursor:pointer;transition:transform .1s}
+.a-cell:hover{transform:scale(1.6);z-index:10}
+
+/* ─── SOCIALS ─── */
+.socials{display:flex;gap:6px;flex-wrap:wrap}
+.soc{border:1px solid var(--bo2);padding:7px 14px;font-size:9px;letter-spacing:2px;color:var(--tx2);cursor:pointer;transition:all .2s;background:rgba(4,13,24,0.9);text-decoration:none;display:block}
+.soc:hover{border-color:var(--c);color:var(--c);background:rgba(0,255,255,0.03)}
+
+/* ─── FOOTER ─── */
+.hud-footer{border:1px solid var(--bo);padding:10px 20px;text-align:center;font-size:8px;color:var(--tx3);letter-spacing:3px;position:relative;overflow:hidden}
+.hud-footer::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--c3),transparent);animation:scanTop 5s ease-in-out infinite}
+
+/* load-in */
+.wrap > *{animation:fadeUp .35s ease both}
+.wrap > *:nth-child(1){animation-delay:.0s}
+.wrap > *:nth-child(2){animation-delay:.05s}
+.wrap > *:nth-child(3){animation-delay:.1s}
+.wrap > *:nth-child(4){animation-delay:.15s}
+.wrap > *:nth-child(5){animation-delay:.2s}
+.wrap > *:nth-child(6){animation-delay:.25s}
+.wrap > *:nth-child(7){animation-delay:.3s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+</style>
+
+<!-- PARTICLE + GRID CANVASES -->
+<canvas id="particles"></canvas>
+<canvas id="grid-bg"></canvas>
+
+<div class="wrap">
+
+<!-- ══ HEADER ══ -->
+<div class="hud-header">
+  <div class="cb tl"></div><div class="cb tr"></div>
+  <div class="cb bl"></div><div class="cb br"></div>
+  <div class="header-inner">
+    <div class="header-left">
+      <div><div class="sys-label">UNIT</div><div class="sys-val">ArtechFuz3D</div></div>
+      <div><div class="sys-label">CLEARANCE</div><div class="sys-val ok">LEVEL-9 ■</div></div>
+      <div><div class="sys-label">BASE</div><div class="sys-val">PRETORIA, ZA</div></div>
+    </div>
+    <div class="callsign-center">
+      <div style="position:relative;display:inline-block">
+        <div class="callsign callsign-ghost" style="position:absolute;left:2px;top:2px;color:#FF4500;opacity:0.12">ARTECH FUZ3D</div>
+        <div class="callsign">ARTECH FUZ3D</div>
+      </div>
+      <div class="desig">◈  AEROSPACE  ·  MECHANICAL  ·  3D  ·  DESIGN  ◈</div>
+    </div>
+    <div class="header-right">
+      <div><div class="sys-label">DESIGN OPS</div><div class="sys-val warn">ACTIVE ●</div></div>
+      <div><div class="sys-label">RENDER ENGINE</div><div class="sys-val ok">ONLINE</div></div>
+      <div><div class="sys-label">HUD VERSION</div><div class="sys-val">v4.2.1</div></div>
+    </div>
+  </div>
+  <div class="header-bottom">
+    <div class="hb-item"><div class="dot pulse" style="background:#00FF41"></div><span style="color:#00FF41">ONLINE</span></div>
+    <div class="hb-item"><div class="dot pulse" style="background:#FF4500;animation-delay:.3s"></div><span style="color:#FF4500">DESIGN OPS: ACTIVE</span></div>
+    <div class="hb-item"><span style="color:var(--tx2)">TOOLCHAIN: Blender · Fusion 360 · Unreal · Python</span></div>
+    <div class="hb-item"><span style="color:var(--tx2)">FAB: FDM · Resin · CNC · Composites</span></div>
+    <div class="hb-item" style="margin-left:auto"><span id="clock" style="color:var(--c);font-family:'Orbitron',monospace;font-size:10px"></span></div>
+  </div>
+</div>
+
+<!-- ══ TERMINAL ══ -->
+<div class="terminal">
+  <div class="t-bar">
+    <div class="t-dot" style="background:#FF4500"></div>
+    <div class="t-dot" style="background:#FFD700"></div>
+    <div class="t-dot" style="background:#00FF41"></div>
+    <div class="t-title">◈  OPERATOR CONFIG  /  PILOT.YAML  ◈</div>
+  </div>
+  <div class="t-body" id="termBody">
+    <div><span class="t-pr">root@artech-hud:~$ </span><span class="t-cm">cat operator.yaml</span></div>
+  </div>
+</div>
+
+<!-- ══ STAT PANELS ══ -->
+<div class="sec-hd">SYSTEM TELEMETRY</div>
+<div class="stats-row">
+  <div class="stat-card" style="--accent:#00FFFF">
+    <div class="sc-id">SYS-01</div>
+    <div class="sc-label">REPOSITORIES</div>
+    <div class="sc-val" id="s1">—</div>
+    <div class="sc-sub" id="s1b">loading...</div>
+    <div class="osc-wrap"><canvas class="osc-line" id="osc1" height="28"></canvas></div>
+  </div>
+  <div class="stat-card" style="--accent:#FF4500">
+    <div class="sc-id">SYS-02</div>
+    <div class="sc-label">FOLLOWERS</div>
+    <div class="sc-val" id="s2">—</div>
+    <div class="sc-sub" id="s2b">loading...</div>
+    <div class="osc-wrap"><canvas class="osc-line" id="osc2" height="28"></canvas></div>
+  </div>
+  <div class="stat-card" style="--accent:#00FF41">
+    <div class="sc-id">SYS-03</div>
+    <div class="sc-label">TOTAL STARS</div>
+    <div class="sc-val" id="s3">★</div>
+    <div class="sc-sub" id="s3b">loading...</div>
+    <div class="osc-wrap"><canvas class="osc-line" id="osc3" height="28"></canvas></div>
+  </div>
+  <div class="stat-card" style="--accent:#FFD700">
+    <div class="sc-id">SYS-04</div>
+    <div class="sc-label">PROFILE VIEWS</div>
+    <div class="sc-val" id="s4" style="color:#FFD700">—</div>
+    <div class="sc-sub" id="s4b">fetching...</div>
+    <div class="osc-wrap"><canvas class="osc-line" id="osc4" height="28"></canvas></div>
+  </div>
+</div>
+
+<!-- ══ PROJECT CARDS ══ -->
+<div class="sec-hd">ACTIVE MISSION DOSSIER</div>
+<div class="cards-grid">
+
+  <div class="pcard" style="--accent:#00FFFF" onclick="window.open('https://github.com/ArtechFuz3D','_blank')">
+    <div class="pcard-head">
+      <div class="pcard-info">
+        <div class="pm">MISSION-001</div>
+        <div class="pt">AEROSPACE-PRINT-LAB</div>
+        <div class="pst" style="border-color:#00FF41;color:#00FF41">● ACTIVE</div>
+      </div>
+    </div>
+    <div class="pcard-body">
+      <div class="pd">Parametric aerospace-grade 3D print library. Structural brackets, airfoil profiles, duct systems — fully parametric and field-ready.</div>
+      <div class="tags"><span class="tag">#parametric</span><span class="tag">#aerospace</span><span class="tag">#blender</span><span class="tag">#3dprint</span></div>
+    </div>
+    <div class="pcard-foot"><span><span class="lang-dot" style="background:#E87D0D"></span>Python</span><span>★ 0</span><span class="go">VIEW MISSION →</span></div>
+  </div>
+
+  <div class="pcard" style="--accent:#FF4500" onclick="window.open('https://github.com/ArtechFuz3D','_blank')">
+    <div class="pcard-head">
+      <div class="pcard-info">
+        <div class="pm">MISSION-002</div>
+        <div class="pt" style="color:#FF4500">MECH-VIZ-ENGINE</div>
+        <div class="pst" style="border-color:#FF4500;color:#FF4500">◎ DEV</div>
+      </div>
+    </div>
+    <div class="pcard-body">
+      <div class="pd">Real-time mechanical visualization pipeline. Exploded views, assembly animations — bridging engineering CAD and cinematic rendering.</div>
+      <div class="tags"><span class="tag">#unrealengine</span><span class="tag">#cad</span><span class="tag">#animation</span></div>
+    </div>
+    <div class="pcard-foot"><span><span class="lang-dot" style="background:#4C5AF0"></span>GDScript</span><span>★ 0</span><span class="go" style="color:#FF4500">VIEW MISSION →</span></div>
+  </div>
+
+  <div class="pcard" style="--accent:#00FF41" onclick="window.open('https://github.com/ArtechFuz3D','_blank')">
+    <div class="pcard-head">
+      <div class="pcard-info">
+        <div class="pm">MISSION-003</div>
+        <div class="pt" style="color:#00FF41">COMPOSITE-TOOLKIT</div>
+        <div class="pst" style="border-color:#00FF41;color:#00FF41">● ACTIVE</div>
+      </div>
+    </div>
+    <div class="pcard-body">
+      <div class="pd">Carbon fibre & composite layup design toolkit. Ply angle calculators, layup generators, mold geometry scripts for hobbyists and pros.</div>
+      <div class="tags"><span class="tag">#composites</span><span class="tag">#carbonfibre</span><span class="tag">#python</span></div>
+    </div>
+    <div class="pcard-foot"><span><span class="lang-dot" style="background:#3572A5"></span>Python</span><span>★ 0</span><span class="go" style="color:#00FF41">VIEW MISSION →</span></div>
+  </div>
+
+  <div class="pcard" style="--accent:#FFD700" onclick="window.open('https://github.com/ArtechFuz3D','_blank')">
+    <div class="pcard-head">
+      <div class="pcard-info">
+        <div class="pm">MISSION-004</div>
+        <div class="pt" style="color:#FFD700">SCIFI-PROP-VAULT</div>
+        <div class="pst" style="border-color:var(--tx3);color:var(--tx3)">◈ CLASSIFIED</div>
+      </div>
+    </div>
+    <div class="pcard-body">
+      <div class="pd">Free open-source sci-fi hard-surface asset vault. Greeble panels, mechanical props, weapon components — game-ready PBR materials.</div>
+      <div class="tags"><span class="tag">#scifi</span><span class="tag">#blender</span><span class="tag">#hardsurface</span><span class="tag">#pbr</span></div>
+    </div>
+    <div class="pcard-foot"><span><span class="lang-dot" style="background:#E87D0D"></span>Blender</span><span>★ 0</span><span class="go" style="color:#FFD700">VIEW MISSION →</span></div>
+  </div>
+
+</div>
+
+<!-- ══ SKILLS + RADAR ══ -->
+<div class="sec-hd">CAPABILITY MATRIX</div>
+<div class="skills-row">
+  <div class="skill-panel">
+    <div id="skills-container"></div>
+  </div>
+  <div class="radar-panel">
+    <canvas id="radarCanvas" width="170" height="170"></canvas>
+    <div style="font-size:8px;color:var(--tx3);letter-spacing:2px;text-align:center">SKILL RADAR</div>
+  </div>
+</div>
+
+<!-- ══ ACTIVITY ══ -->
+<div class="sec-hd">COMMIT TELEMETRY</div>
+<div class="activity">
+  <div id="month-row" style="display:flex;gap:2px;margin-bottom:4px;font-size:8px;color:var(--tx3)"></div>
+  <div class="a-wrap" id="actGrid"></div>
+  <div style="display:flex;align-items:center;gap:5px;margin-top:8px;justify-content:flex-end;font-size:8px;color:var(--tx3)">
+    <span>LESS</span>
+    <div style="width:8px;height:8px;border-radius:1px;background:#0A1824"></div>
+    <div style="width:8px;height:8px;border-radius:1px;background:#003C3C"></div>
+    <div style="width:8px;height:8px;border-radius:1px;background:#006666"></div>
+    <div style="width:8px;height:8px;border-radius:1px;background:#009999"></div>
+    <div style="width:8px;height:8px;border-radius:1px;background:#00CCCC"></div>
+    <div style="width:8px;height:8px;border-radius:1px;background:#00FFFF"></div>
+    <span>MORE</span>
+  </div>
+</div>
+
+<!-- ══ SOCIALS ══ -->
+<div class="sec-hd">COMMS CHANNELS</div>
+<div class="socials">
+  <a class="soc" href="https://github.com/ArtechFuz3D" target="_blank">◈ GITHUB</a>
+  <a class="soc" href="#" target="_blank">◈ ARTSTATION</a>
+  <a class="soc" href="#" target="_blank">◈ YOUTUBE</a>
+  <a class="soc" href="#" target="_blank">◈ INSTAGRAM</a>
+  <a class="soc" href="#" target="_blank">◈ PRINTABLES</a>
+  <a class="soc" href="#" target="_blank">◈ DISCORD</a>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<div class="hud-footer">[ SYS: END OF TRANSMISSION ] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ ARTECH FUZ3D ◈ 2025</div>
+
+</div>
+
+<script>
+// ─── GRID BACKGROUND ───
+(function(){
+  const c=document.getElementById('grid-bg');
+  const ctx=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight}
+  resize();
+  window.addEventListener('resize',resize);
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.strokeStyle='rgba(0,50,70,0.25)';
+    ctx.lineWidth=0.5;
+    const gs=40;
+    for(let x=0;x<c.width;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,c.height);ctx.stroke()}
+    for(let y=0;y<c.height;y+=gs){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(c.width,y);ctx.stroke()}
+  }
+  draw();
+})();
+
+// ─── PARTICLE SYSTEM ───
+(function(){
+  const c=document.getElementById('particles');
+  const ctx=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight}
+  resize();window.addEventListener('resize',resize);
+  const N=60;
+  const pts=Array.from({length:N},()=>({
+    x:Math.random()*window.innerWidth,
+    y:Math.random()*window.innerHeight,
+    vx:(Math.random()-.5)*0.25,
+    vy:(Math.random()-.5)*0.25,
+    r:Math.random()*1.5+0.3,
+    a:Math.random()
+  }));
+  function tick(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>c.width)p.vx*=-1;
+      if(p.y<0||p.y>c.height)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(0,255,255,${p.a*0.4})`;ctx.fill();
+    });
+    // connection lines
+    for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<120){
+        ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);
+        ctx.strokeStyle=`rgba(0,255,255,${(1-d/120)*0.08})`;ctx.lineWidth=0.5;ctx.stroke();
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+// ─── CLOCK ───
+function updateClock(){
+  const n=new Date();
+  document.getElementById('clock').textContent=
+    String(n.getHours()).padStart(2,'0')+':'+
+    String(n.getMinutes()).padStart(2,'0')+':'+
+    String(n.getSeconds()).padStart(2,'0')+' UTC+2';
+}
+setInterval(updateClock,1000);updateClock();
+
+// ─── TERMINAL TYPEWRITER ───
+const lines=[
+  {t:'out',c:'t-v',s:'CALLSIGN  : <span class="t-ok">ArtechFuz3D</span>  │  LOCATION : <span class="t-ok">Pretoria, South Africa</span>'},
+  {t:'out',c:'t-v',s:'TOOLCHAIN : <span style="color:var(--tx)">Blender · Fusion 360 · Unreal Engine · Python · FreeCAD</span>'},
+  {t:'out',c:'t-v',s:'FABRICATION: <span style="color:var(--tx)">FDM · Resin · CNC · Laser Cutting · Composites</span>'},
+  {t:'out',c:'t-v',s:'PHILOSOPHY: <span class="t-wn">"Design is engineering with soul."</span>'},
+  {t:'cmd',s:'status --all'},
+  {t:'out',c:'t-v',s:'[<span class="t-ok">OK</span>]  Render engine ....... online'},
+  {t:'out',c:'t-v',s:'[<span class="t-ok">OK</span>]  CAD systems .......... nominal'},
+  {t:'out',c:'t-v',s:'[<span class="t-ok">OK</span>]  3D print queue ....... 3 jobs'},
+  {t:'out',c:'t-v',s:'[<span class="t-wn">WRN</span>] Coffee reserves ...... 38%'},
+];
+let li=0;
+const tb=document.getElementById('termBody');
+function addLine(o){
+  const d=document.createElement('div');
+  if(o.t==='cmd'){d.innerHTML=`<span class="t-pr">root@artech-hud:~$ </span><span class="t-cm">${o.s}</span>`}
+  else{d.innerHTML=`<span class="${o.c||''}">${o.s}</span>`}
+  tb.appendChild(d);
+}
+function typeLines(){
+  if(li>=lines.length){
+    const d=document.createElement('div');
+    d.innerHTML=`<span class="t-pr">root@artech-hud:~$ </span><span class="cursor"></span>`;
+    tb.appendChild(d);return;
+  }
+  setTimeout(()=>{addLine(lines[li++]);typeLines()},li===0?200:70);
+}
+typeLines();
+
+// ─── OSCILLOSCOPE CANVASES ───
+function drawOsc(id,color,freq,amp){
+  const c=document.getElementById(id);
+  if(!c)return;
+  const ctx=c.getContext('2d');
+  c.width=c.offsetWidth||200;
+  let t=0;
+  function frame(){
+    const w=c.width,h=c.height;
+    ctx.clearRect(0,0,w,h);
+    ctx.beginPath();
+    for(let x=0;x<w;x++){
+      const y=h/2+Math.sin((x/w)*freq*Math.PI*2+t)*amp+Math.sin((x/w)*freq*1.7*Math.PI*2+t*1.3)*amp*0.3;
+      x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.stroke();
+    t+=0.04;requestAnimationFrame(frame);
+  }
+  frame();
+}
+setTimeout(()=>{
+  drawOsc('osc1','#00FFFF',3,6);
+  drawOsc('osc2','#FF4500',4,7);
+  drawOsc('osc3','#00FF41',2.5,5);
+  drawOsc('osc4','#FFD700',5,8);
+},300);
+
+// ─── GITHUB API STATS ───
+async function loadStats(){
+  try{
+    const r=await fetch('https://api.github.com/users/ArtechFuz3D');
+    if(r.ok){
+      const d=await r.json();
+      document.getElementById('s1').textContent=d.public_repos||'0';
+      document.getElementById('s1b').textContent='▲ PUBLIC REPOSITORIES';
+      document.getElementById('s2').textContent=d.followers||'0';
+      document.getElementById('s2b').textContent='▲ GITHUB FOLLOWERS';
+      document.getElementById('s4').textContent=d.public_gists||'0';
+      document.getElementById('s4b').textContent='▲ PUBLIC GISTS';
+    }
+    const r2=await fetch('https://api.github.com/users/ArtechFuz3D/repos?per_page=100');
+    if(r2.ok){
+      const repos=await r2.json();
+      const stars=repos.reduce((a,r)=>a+(r.stargazers_count||0),0);
+      document.getElementById('s3').textContent='★'+stars;
+      document.getElementById('s3b').textContent='▲ TOTAL STARS';
+    }
+  }catch(e){
+    document.getElementById('s1').textContent='—';
+    document.getElementById('s1b').textContent='API RATE LIMITED';
+  }
+}
+loadStats();
+
+// ─── SKILL BARS ───
+const skills=[
+  {n:'BLENDER / 3D MODELLING',p:95,c:'linear-gradient(90deg,#004444,#00FFFF)'},
+  {n:'FUSION 360 / CAD',p:88,c:'linear-gradient(90deg,#004444,#00FFFF)'},
+  {n:'3D PRINTING / FDM / RESIN',p:92,c:'linear-gradient(90deg,#441200,#FF4500)'},
+  {n:'UNREAL ENGINE',p:78,c:'linear-gradient(90deg,#004444,#00FFFF)'},
+  {n:'PYTHON / SCRIPTING',p:74,c:'linear-gradient(90deg,#004400,#00FF41)'},
+  {n:'COMPOSITES / FAB',p:82,c:'linear-gradient(90deg,#441200,#FF4500)'},
+];
+const sc=document.getElementById('skills-container');
+skills.forEach((s,i)=>{
+  sc.innerHTML+=`<div class="skill-item">
+    <div class="sk-row"><span class="sk-n">${s.n}</span><span class="sk-p">${s.p}%</span></div>
+    <div class="sk-t"><div class="sk-f" id="sf${i}" style="width:0%;background:${s.c}"></div></div>
+  </div>`;
+});
+setTimeout(()=>{
+  skills.forEach((s,i)=>{
+    const el=document.getElementById('sf'+i);
+    if(el)setTimeout(()=>el.style.width=s.p+'%',i*80);
+  });
+},400);
+
+// ─── RADAR ───
+(function(){
+  const c=document.getElementById('radarCanvas');
+  const ctx=c.getContext('2d');
+  const W=170,H=170,cx=85,cy=85,R=62;
+  const labels=['3D','CAD','FAB','CODE','ART','VIZ'];
+  const vals=[0.95,0.88,0.92,0.74,0.85,0.80];
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const N=6;
+    // grid
+    for(let ring=1;ring<=4;ring++){
+      ctx.beginPath();
+      for(let i=0;i<N;i++){
+        const a=i/N*Math.PI*2-Math.PI/2;
+        const r=R*ring/4;
+        const x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;
+        i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      }
+      ctx.closePath();ctx.strokeStyle='rgba(10,46,60,0.8)';ctx.lineWidth=0.5;ctx.stroke();
+    }
+    // axes
+    for(let i=0;i<N;i++){
+      const a=i/N*Math.PI*2-Math.PI/2;
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R);
+      ctx.strokeStyle='rgba(6,17,30,0.9)';ctx.lineWidth=0.5;ctx.stroke();
+    }
+    // data polygon (animated wobble)
+    ctx.beginPath();
+    for(let i=0;i<N;i++){
+      const a=i/N*Math.PI*2-Math.PI/2;
+      const v=vals[i]+Math.sin(t+i*1.1)*0.03;
+      const r=R*v;
+      const x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.fillStyle='rgba(0,255,255,0.06)';ctx.fill();
+    ctx.strokeStyle='rgba(0,204,204,0.8)';ctx.lineWidth=1.5;ctx.stroke();
+    // dots
+    for(let i=0;i<N;i++){
+      const a=i/N*Math.PI*2-Math.PI/2;
+      const v=vals[i]+Math.sin(t+i*1.1)*0.03;
+      const r=R*v;
+      ctx.beginPath();ctx.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,2.5,0,Math.PI*2);
+      ctx.fillStyle='#00FFFF';ctx.fill();
+    }
+    // labels
+    ctx.font='8px Share Tech Mono';ctx.fillStyle='rgba(90,168,187,0.9)';ctx.textAlign='center';
+    for(let i=0;i<N;i++){
+      const a=i/N*Math.PI*2-Math.PI/2;
+      const lx=cx+Math.cos(a)*(R+14),ly=cy+Math.sin(a)*(R+14)+3;
+      ctx.fillText(labels[i],lx,ly);
+    }
+    // center dot
+    ctx.beginPath();ctx.arc(cx,cy,3+Math.sin(t)*1,0,Math.PI*2);
+    ctx.fillStyle='#00FFFF';ctx.fill();
+    t+=0.02;requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ─── CONTRIBUTION GRID ───
+(function(){
+  const grid=document.getElementById('actGrid');
+  const months=document.getElementById('month-row');
+  const cols=52,MONTHS=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  const colors=['#0A1824','#003C3C','#006666','#009999','#00CCCC','#00FFFF'];
+  const today=new Date();
+  const start=new Date(today);start.setDate(today.getDate()-cols*7+1);
+  // rows = days of week, cols = weeks — build column by column
+  const rows=Array.from({length:7},()=>[]);
+  let lastMonth=-1;
+  const monthCells=[];
+  for(let w=0;w<cols;w++){
+    let mLabel='';
+    for(let d=0;d<7;d++){
+      const dt=new Date(start);dt.setDate(start.getDate()+w*7+d);
+      if(dt>today){rows[d].push(null);continue}
+      const lv=Math.random()<0.35?0:Math.floor(Math.random()*5)+1;
+      rows[d].push({lv,tip:dt.toDateString().slice(4)+': '+lv+' commit'+(lv!==1?'s':'')});
+      if(d===0&&dt.getMonth()!==lastMonth){lastMonth=dt.getMonth();mLabel=MONTHS[dt.getMonth()]}
+    }
+    monthCells.push(mLabel);
+  }
+  // month row
+  monthCells.forEach(m=>{
+    const s=document.createElement('span');
+    s.style.cssText='display:inline-block;width:11px;font-size:7px;overflow:visible;white-space:nowrap';
+    s.textContent=m;months.appendChild(s);
+  });
+  // build rows
+  for(let d=0;d<7;d++){
+    const row=document.createElement('div');row.className='a-row';
+    for(let w=0;w<cols;w++){
+      const cell=document.createElement('div');cell.className='a-cell';
+      const item=rows[d][w];
+      if(!item){cell.style.background='transparent'}
+      else{
+        cell.style.background=colors[Math.min(item.lv,5)];
+        cell.title=item.tip;
+        cell.addEventListener('mouseenter',function(){this.style.outline='1px solid rgba(0,255,255,0.5)'});
+        cell.addEventListener('mouseleave',function(){this.style.outline='none'});
+      }
+      row.appendChild(cell);
+    }
+    grid.appendChild(row);
+  }
+})();
+</script>
